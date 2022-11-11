@@ -6,7 +6,7 @@ from pydantic import BaseSettings, EmailStr, validator
 class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     SECRET_KEY: str = secrets.token_urlsafe(32)
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    ACCESS_TOKEN_EXPIRE_HOURS: int = 60
     PROJECT_NAME: str = "E-School"
 
     POSTGRES_SERVER: str = "localhost"

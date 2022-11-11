@@ -174,7 +174,8 @@ class CrudBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             db.refresh(db_object)
             return db_object
         except exc.SQLAlchemyError as error:
-            raise Exception(str(error))
+            logger.error('Operation Failed!', exc_info=True)
+            return None
 
     def delete_object(self, db: Session, obj_id: int):
         obj_query = db.query(self.model).filter(self.model.id == obj_id)

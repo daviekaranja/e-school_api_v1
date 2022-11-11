@@ -12,58 +12,6 @@ from app.schemas.user import UserCreate, UserUpdate
 logger = logging.getLogger(__name__)
 
 
-class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
-    def get_by_email(self, db: Session, *, email: str) -> Optional[User]:
-        return db.query(User).filter(User.email == email).first()
-
-    def create(self, db: Session, *, obj_in: UserCreate) -> User:
-        db_obj = User(
-            email=obj_in.email,
-            password=get_password_hash(obj_in.password),
-            full_name=obj_in.full_name,
-            is_superuser=obj_in.is_superuser,
-        )
-        db.add(db_obj)
-        db.commit()
-        db.refresh(db_obj)
-        return db_obj
-
-    def update(
-            self, db: Session, *, db_obj: User, obj_in: Union[UserUpdate, Dict[str, Any]]
-    ) -> User:
-        if isinstance(obj_in, dict):
-            update_data = obj_in
-            logger.info(update_data)
-
-        else:
-            update_data = obj_in.dict(exclude_unset=True)
-        if update_data["password"]:
-            password = get_password_hash(update_data["password"])
-            del update_data["password"]
-            update_data["password"] = password
-        return super().update(db=db, db_obj=db_obj, obj_in=update_data)
-
-    def authenticate(self, db: Session, *, email: str, password: str) -> Optional[User]:
-        user = self.get_by_email(db, email=email)
-        if not user:
-            return None
-        if not verify_password(password, user.hashed_password):
-            return None
-        return user
-
-    def is_active(self, user: User) -> bool:
-        return user.is_active
-
-    def is_superuser(self, user: User) -> bool:
-        return user.is_superuser
-
-
-user = CRUDUser()
-user.model = User
-
-user_class = CrudBase(User)
-
-
 class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
     def get_by_email(self, db: Session, *, email: str) -> Optional[User]:
         """
@@ -110,5 +58,11 @@ class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
             return None
         return curret_user
 
+    def is_active(self, user: User) -> bool:
+        return user.is_active
 
-uuser = CrudUser(User)
+    def is_superuser(self, user: User):
+        return user.is_superuser
+
+
+User_instance = CrudUser(User)

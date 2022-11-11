@@ -12,18 +12,16 @@ from app.backend_pre_start import main as backend_prestart
 # from app.core.logging.logger import CustomLogger
 
 # routers
-from app.api.api_v1.endpoints import users
+from app.api.api_v1.api import api_router
 
-app = FastAPIOffline(title=settings.PROJECT_NAME, prefix=settings.API_V1_STR)
+app = FastAPIOffline(title=settings.PROJECT_NAME)
+app.include_router(api_router, prefix=settings.API_V1_STR)
 
 
 @app.on_event('startup')
 def run_before():
     init_main()
     backend_prestart()
-
-
-app.include_router(users.router)
 
 
 @app.get('/')

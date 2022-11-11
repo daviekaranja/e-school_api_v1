@@ -17,7 +17,7 @@ first_superuser = settings.FIRST_SUPERUSER_EMAIL
 
 def init_db(db: Session) -> None:
     if first_superuser:
-        user = crud_user.user.get_by_email(db, email=first_superuser)
+        user = crud_user.User_instance.get_by_email(db, email=first_superuser)
         if not user:
             user_in = UserCreate(
                 full_name='Davie Karanja Muiruri',
@@ -26,7 +26,7 @@ def init_db(db: Session) -> None:
                 is_active=True,
                 is_superuser=True
             )
-            user = crud_user.user.create(db, obj_in=user_in)
+            user = crud_user.User_instance.create(db, obj_in=user_in)
             logger.info("Superuser created successfully")
         else:
             logger.info(

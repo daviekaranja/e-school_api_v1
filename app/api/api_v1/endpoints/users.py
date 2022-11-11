@@ -7,14 +7,14 @@ from sqlalchemy.orm import Session
 from sqlalchemy import exc
 
 from app.crud import crud_user
-from app.crud.crud_user import uuser
+from app.crud.crud_user import User_instance
 from app.core.config import settings
 from app.schemas import user as user_schema
 from app import crud, models
 from app.api.api_v1 import debs
 from app.models.user import User as UserModel
 
-router: APIRouter = APIRouter(prefix='/users', tags=['Users'])
+router: APIRouter = APIRouter()
 
 
 @router.get('/')
@@ -27,7 +27,7 @@ def get_users(db: Session = Depends(debs.get_db), skip: int = 0, limit: int = 10
     :return:
     """
     try:
-        users = uuser.get_multiple(db, skip, limit)
+        users = User_instance.get_multiple(db, skip, limit)
     except exc.SQLAlchemyError as error:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=error)
 
@@ -45,7 +45,7 @@ def get_user(user_id: int, db: Session = Depends(debs.get_db), skip: int = 0, li
     :return:
     """
     try:
-        user = crud_user.uuser.get_by_id(db, user_id)
+        user = crud_user.User_instance.get_by_id(db, user_id)
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                                 detail=f'user with id[{user_id}] does not exist!')
@@ -62,12 +62,12 @@ def add_user(user_in: user_schema.UserCreate, db: Session = Depends(debs.get_db)
     :param db:
     :return:
     """
-    user = crud_user.uuser.get_by_email(db, email=user_in.email)
+    user = crud_user.User_instance.get_by_email(db, email=user_in.email)
     if user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail='the user with this username already exist in the database!')
 
-    user = crud_user.uuser.create(db, obj_in=user_in)
+    user = crud_user.User_instance.create(db, obj_in=user_in)
     return user
 
 
@@ -86,13 +86,13 @@ def update_user(
     :param db:
     :return:
     """
-    user = crud_user.uuser.get_by_id(db, obj_id=user_id)
+    user = crud_user.User_instance.get_by_id(db, obj_id=user_id)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail='The User with this username does not exist'
         )
-    user = crud_user.uuser.update_user(db, db_obj=user, obj_in=user_in)
+    user = crud_user.User_instance.update_user(db, db_obj=user, obj_in=user_in)
     return user
 
 
@@ -121,5 +121,5 @@ def update_current_user(
         user_in.full_name = full_name
     if email is not None:
         user_in.email = email
-    user_update = crud_user.uuser.update_user(db, db_obj=current_user, obj_in=user_in)
+    user_update = crud_user.User_instance.update_user(db, db_obj=current_user, obj_in=user_in)
     return user_update
