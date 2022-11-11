@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER_EMAIL: EmailStr = "admin@eschool.com"
     FIRST_SUPERUSER_PASSWORD: str = "password"
     USERS_OPEN_REGISTRATION: bool = False
+    EMAIL_ENABLED: bool = True
+    EMAIL_FROM_NAME: EmailStr = 'admin@eschool.com'
 
     sqlalchemy_url = 'postgresql://postgres:1256@localhost/db'
 

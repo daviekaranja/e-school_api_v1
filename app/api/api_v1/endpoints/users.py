@@ -102,6 +102,24 @@ def update_current_user(
         password: str = Body(None),
         full_name: str = Body(None),
         email: EmailStr = Body(None),
-        current_user: UserModel = Depends(debs)
+        current_user: UserModel = Depends(debs.get_current_user)
 ) -> Any:
-    pass
+    """
+    update own user
+    :param db:
+    :param password:
+    :param full_name:
+    :param email:
+    :param current_user:
+    :return:
+    """
+    current_user_data = jsonable_encoder(current_user)
+    user_in = user_schema.UserUpdate(**current_user_data)
+    if password is not None:
+        user_in.password = password
+    if full_name is not None:
+        user_in.full_name = full_name
+    if email is not None:
+        user_in.email = email
+    user_update = crud_user.uuser.update_user(db, db_obj=current_user, obj_in=user_in)
+    return user_update

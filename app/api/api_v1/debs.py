@@ -6,8 +6,9 @@ from jose import jwt
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
-from app import models, crud, schemas
+from app.crud import crud_user
 from app.models.user import User as UserModel
+from app.models.token import Token, TokenPayload
 from app.core import security
 from app.core.config import settings
 from app.db.session import SessionLocal
@@ -32,30 +33,30 @@ def get_current_user(
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
         )
-        token_data = schemas.TokenPayload(**payload)
+        token_data = TokenPayload(**payload)
     except (jwt.JWTError, ValidationError):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
         )
-    user = crud.user.get(db, id=token_data.sub)
+    user = crud_user.uuser.get_by_id(db, obj_id=token_data.sub)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
 
 def get_current_active_user(
-    current_user: models.User = Depends(get_current_user),
-) -> models.User:
-    if not crud.user.is_active(current_user):
+    current_user: UserModel = Depends(get_current_user),
+) -> UserModel:
+    if not crud_user.uuser.is_active(current_user):
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
 
 def get_current_active_superuser(
-    current_user: models.User = Depends(get_current_user),
-) -> models.User:
-    if not crud.user.is_superuser(current_user):
+    current_user: UserModel = Depends(get_current_user),
+) -> UserModel:
+    if not crud_user.uuser.is_superuser(current_user):
         raise HTTPException(
             status_code=400, detail="The user doesn't have enough privileges"
         )
