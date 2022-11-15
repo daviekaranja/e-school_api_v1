@@ -18,9 +18,10 @@ router: APIRouter = APIRouter()
 
 
 @router.get('/')
-def get_users(db: Session = Depends(debs.get_db), skip: int = 0, limit: int = 100):
+def get_users(db: Session = Depends(debs.get_db), skip: int = 0, limit: int = 100, current_user: UserModel = Depends(debs.get_current_active_superuser)) -> List[UserModel]:
     """
     retrieve multiple users
+    :param current_user:
     :param db:
     :param skip:
     :param limit:

@@ -44,11 +44,12 @@ class CrudUser(CrudBase[User, UserCreate, UserUpdate]):
             update_data = obj_in
         else:
             update_data = obj_in.dict(exclude_unset=True)
-        if update_data['password']:
-            hashed_password = get_password_hash(update_data['password'])
+        password = update_data.get('password', None)
+        if password is not None:
+            hashed_password = get_password_hash(password)
             del update_data['password']
-            update_data['password'] = hashed_password
-            return super().update_object(db, db_object=db_obj, obj_in=update_data)
+            update_data[password] = hashed_password
+        return super().update_object(db, db_object=db_obj, obj_in=update_data)
 
     def authenticate(self, db: Session, email: str, password_attempt: str) -> Optional[User]:
         curret_user = self.get_by_email(db, email=email)

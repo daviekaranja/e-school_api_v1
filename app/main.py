@@ -24,11 +24,6 @@ def run_before():
     backend_prestart()
 
 
-@app.get('/')
-def home(db: Session = Depends(get_db)):
-    return f'welcome to {settings.PROJECT_NAME}'
-
-
 sep = '<>'
 
 print("\n")
